@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
+#include <sys/stat.h>
 
 using namespace std;
 
@@ -99,6 +100,12 @@ void get_file_format(file_fmt &fmt, ifstream &file) {
     char bits_per_sample[2];
     file.read(bits_per_sample, 2);
     fmt.bits_per_sample = short_from_buffer(bits_per_sample);
+
+    if (fmt.subchunk_size > 16) {
+        // Sometimes the fmt of the ir's have a subchunk size that is randomly too big
+        // Throw those away
+        file.read(size, fmt.subchunk_size - 16);
+    }
 }
 
 /* Use file to fill out the provided data subchunk */
@@ -123,6 +130,7 @@ void get_file_data(file_data &data, ifstream &file, int sample_size) {
 /* Read the filename given and store all wav file data into the returned wav_file */
 wav_file read_file(char* filename) {
     ifstream file = ifstream(filename);
+    if (!file.is_open()) { exit(EXIT_FAILURE); }
     wav_file wav;
     get_file_header(wav.header, file);
     get_file_format(wav.fmt, file);
@@ -189,6 +197,7 @@ void write_file_data(file_data data, ofstream &file, int block_align) {
 
 void write_to_file(wav_file wav, char* filename) {
     ofstream file = ofstream(filename);
+    if (!file.is_open()) { exit(EXIT_FAILURE); }
     write_file_header(wav.header, file);
     write_file_format(wav.fmt, file);
     write_file_data(wav.data, file, wav.fmt.block_align);
@@ -206,29 +215,33 @@ void print_id(char buf[]) {
     printf("\n");
 }
 void print_file_data(wav_file wav) {
-    printf("HEADER\n");
-    printf("Chunk ID: ");
+    printf("\tChunk ID: ");
     print_id(wav.header.chunk_id);
-    printf("Chunk Size: %d\n", wav.header.chunk_size);
-    printf("Format: ");
+    printf("\tChunk Size: %d\n", wav.header.chunk_size);
+    printf("\tFormat: ");
     print_id(wav.header.format);
     
-    printf("\nFMT\n");
-    printf("Subchunk ID: ");
+    printf("\n\tSubchunk ID: ");
     print_id(wav.fmt.subchunk_id);
-    printf("Subchunk Size: %d\n", wav.fmt.subchunk_size);
-    printf("Audio Format: %d\n", wav.fmt.audio_format);
-    printf("Num Channels: %d\n", wav.fmt.num_channels);
-    printf("Sample Rate: %d\n", wav.fmt.sample_rate);
-    printf("Byte Rate: %d\n", wav.fmt.byte_rate);
-    printf("Block Align: %d\n", wav.fmt.block_align);
-    printf("Bits Per Sample: %d\n", wav.fmt.bits_per_sample);
+    printf("\tSubchunk Size: %d\n", wav.fmt.subchunk_size);
+    printf("\tAudio Format: %d\n", wav.fmt.audio_format);
+    printf("\tNum Channels: %d\n", wav.fmt.num_channels);
+    printf("\tSample Rate: %d\n", wav.fmt.sample_rate);
+    printf("\tByte Rate: %d\n", wav.fmt.byte_rate);
+    printf("\tBlock Align: %d\n", wav.fmt.block_align);
+    printf("\tBits Per Sample: %d\n", wav.fmt.bits_per_sample);
 
-    printf("\nDATA\n");
-    printf("Subchunk ID: ");
+    printf("\n\tSubchunk ID: ");
     print_id(wav.data.subchunk_id);
-    printf("Subchunk Size: %d\n", wav.data.subchunk_size);
-    printf("Sample Count: %d\n", wav.data.num_samples);
+    printf("\tSubchunk Size: %d\n", wav.data.subchunk_size);
+    printf("\tSample Count: %d\n", wav.data.num_samples);
+}
+void exit_if_invalid(char* path) {
+    struct stat sb;
+    if (stat(path, &sb) != 0) {
+        printf("Error: Could not find file: %s\n", path);
+        exit(EXIT_FAILURE);
+    }
 }
 
 /********
@@ -239,10 +252,18 @@ int main(int argc, char* argv[]) {
         printf("Usage: %s <input_file> <IR_file> <output_file>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
+    exit_if_invalid(argv[1]);
+    exit_if_invalid(argv[2]);
 
-    wav_file wav = read_file(argv[1]);
-    print_file_data(wav);
-    write_to_file(wav, argv[3]);
+    wav_file input = read_file(argv[1]);
+    printf("INPUT FILE:\n");
+    print_file_data(input);
+
+    wav_file ir = read_file(argv[2]);
+    printf("\nIMPULSE RESPONSE:\n");
+    print_file_data(ir);
+
+    write_to_file(input, argv[3]);
 
     return EXIT_SUCCESS;
 }
