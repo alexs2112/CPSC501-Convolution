@@ -1,3 +1,4 @@
 .vscode/
-audio/
+provided/
 convolve
+*.wav
