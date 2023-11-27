@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
-#include <fstream>
 #include <sys/stat.h>
+#include <math.h>
+#include <cstring>
 
 using namespace std;
 
@@ -59,83 +59,88 @@ short short_from_buffer(char buf[]) {
 }
 
 /* Use file to fill out the provided header */
-void get_file_header(file_header &header, ifstream &file) {
-    file.read(header.chunk_id, 4);
-
+void get_file_header(file_header &header, FILE* file) {
+    fread(&header.chunk_id, 4, 1, file);
+    
     char size[4];
-    file.read(size, 4);
+    fread(&size, 4, 1, file);
     header.chunk_size = int_from_buffer(size);
 
-    file.read(header.format, 4);
+    fread(&header.format, 4, 1, file);
 }
 
 /* Use file to fill out the provided format subchunk */
-void get_file_format(file_fmt &fmt, ifstream &file) {
-    file.read(fmt.subchunk_id, 4);
+void get_file_format(file_fmt &fmt, FILE *file) {
+    fread(fmt.subchunk_id, 4, 1, file);
 
     char size[4];
-    file.read(size, 4);
+    fread(&size, 4, 1, file);
     fmt.subchunk_size = int_from_buffer(size);
 
     char audio_format[2];
-    file.read(audio_format, 2);
+    fread(&audio_format, 2, 1, file);
     fmt.audio_format = short_from_buffer(audio_format);
 
     char num_channels[2];
-    file.read(num_channels, 2);
+    fread(&num_channels, 2, 1, file);
     fmt.num_channels = short_from_buffer(num_channels);
 
     char sample_rate[4];
-    file.read(sample_rate, 4);
+    fread(&sample_rate, 4, 1, file);
     fmt.sample_rate = int_from_buffer(sample_rate);
 
     char byte_rate[4];
-    file.read(byte_rate, 4);
+    fread(&byte_rate, 4, 1, file);
     fmt.byte_rate = int_from_buffer(byte_rate);
 
     char block_align[2];
-    file.read(block_align, 2);
+    fread(&block_align, 2, 1, file);
     fmt.block_align = short_from_buffer(block_align);
 
     char bits_per_sample[2];
-    file.read(bits_per_sample, 2);
+    fread(&bits_per_sample, 2, 1, file);
     fmt.bits_per_sample = short_from_buffer(bits_per_sample);
 
     if (fmt.subchunk_size > 16) {
         // Sometimes the fmt of the ir's have a subchunk size that is randomly too big
         // Throw those away
-        file.read(size, fmt.subchunk_size - 16);
+        int l = fmt.subchunk_size - 16;
+        char garbage[l];
+        fread(&garbage, l, 1, file);
     }
 }
 
 /* Use file to fill out the provided data subchunk */
-void get_file_data(file_data &data, ifstream &file, int sample_size) {
-    file.read(data.subchunk_id, 4);
+void get_file_data(file_data &data, FILE* file, int sample_size) {
+    fread(&data.subchunk_id, 4, 1, file);
 
     char size[4];
-    file.read(size, 4);
+    fread(&size, 4, 1, file);
     data.subchunk_size = int_from_buffer(size);
 
     int num_samples = data.subchunk_size / sample_size;
     data.num_samples = num_samples;
     short samples[num_samples];
     for (int i = 0; i < num_samples; i++) {
-        char value[2];
-        file.read(value, 2);
-        samples[i] = short_from_buffer(value);
+        char value[sample_size];
+        fread(&value, sample_size, 1, file);
+        if (sample_size==2) {
+            samples[i] = short_from_buffer(value);
+        } else {
+            samples[i] = int_from_buffer(value);
+        }
     }
     data.samples = samples;
 }
 
 /* Read the filename given and store all wav file data into the returned wav_file */
 wav_file read_file(char* filename) {
-    ifstream file = ifstream(filename);
-    if (!file.is_open()) { exit(EXIT_FAILURE); }
+    FILE* file = fopen(filename, "rb");
     wav_file wav;
     get_file_header(wav.header, file);
     get_file_format(wav.fmt, file);
     get_file_data(wav.data, file, wav.fmt.block_align);
-    file.close();
+    fclose(file);
     return wav;
 }
 
@@ -143,35 +148,35 @@ wav_file read_file(char* filename) {
  * Functions for writing to a wav file *
  ***************************************/
 /* Write an integer in little endian format to the file stream */
-void fwriteIntLSB(int data, ofstream &file) {
+void fwriteIntLSB(int data, FILE *file) {
     char array[4];
 
     array[3] = (unsigned char)((data >> 24) & 0xFF);
     array[2] = (unsigned char)((data >> 16) & 0xFF);
     array[1] = (unsigned char)((data >> 8) & 0xFF);
     array[0] = (unsigned char)(data & 0xFF);
-    file.write((char *)array, 4);
+    fwrite((char *)array, 4, 1, file);
 }
 
 /* Write a short in little endian format to the file stream */
-void fwriteShortLSB(short data, ofstream &file) {
+void fwriteShortLSB(short data, FILE *file) {
     char array[2];
 
     array[1] = (unsigned char)((data >> 8) & 0xFF);
     array[0] = (unsigned char)(data & 0xFF);
-    file.write((char *)array, 2);
+    fwrite((char *)array, 2, 1, file);
 }
 
 /* Write the fileheader to an open output filestream */
-void write_file_header(file_header header, ofstream &file) {
-    file.write(header.chunk_id, 4);
+void write_file_header(file_header header, FILE *file) {
+    fwrite(header.chunk_id, 4, 1, file);
     fwriteIntLSB(header.chunk_size, file);
-    file.write(header.format, 4);
+    fwrite(header.format, 4, 1, file);
 }
 
 /* Write the file format subchunk to an open output filestream */
-void write_file_format(file_fmt fmt, ofstream &file) {
-    file.write(fmt.subchunk_id, 4);
+void write_file_format(file_fmt fmt, FILE *file) {
+    fwrite(fmt.subchunk_id, 4, 1, file);
     fwriteIntLSB(fmt.subchunk_size, file);
     fwriteShortLSB(fmt.audio_format, file);
     fwriteShortLSB(fmt.num_channels, file);
@@ -182,8 +187,8 @@ void write_file_format(file_fmt fmt, ofstream &file) {
 }
 
 /* Write the data subchunk to an open output filestream */
-void write_file_data(file_data data, ofstream &file, int block_align) {
-    file.write(data.subchunk_id, 4);
+void write_file_data(file_data data, FILE *file, int block_align) {
+    fwrite(data.subchunk_id, 4, 1, file);
     fwriteIntLSB(data.subchunk_size, file);
     
     for (int i = 0; i < data.num_samples; i++) {
@@ -195,13 +200,115 @@ void write_file_data(file_data data, ofstream &file, int block_align) {
     }
 }
 
+/* Write the wav_file struct to a given file */
 void write_to_file(wav_file wav, char* filename) {
-    ofstream file = ofstream(filename);
-    if (!file.is_open()) { exit(EXIT_FAILURE); }
+    FILE *file = fopen(filename, "wb");
     write_file_header(wav.header, file);
     write_file_format(wav.fmt, file);
     write_file_data(wav.data, file, wav.fmt.block_align);
-    file.close();
+    fclose(file);
+}
+
+/***************
+ * Convolution *
+ ***************/
+wav_file create_wav(short* samples, int num_samples, wav_file input) {
+    wav_file output;
+
+    // fmt subchunk
+    strncpy(output.fmt.subchunk_id, "fmt ", 4);
+    output.fmt.subchunk_size = 16;
+    output.fmt.audio_format = 1;
+    output.fmt.num_channels = input.fmt.num_channels;
+    output.fmt.sample_rate = input.fmt.sample_rate;
+    output.fmt.byte_rate = input.fmt.byte_rate;
+    output.fmt.block_align = input.fmt.block_align;
+    output.fmt.bits_per_sample = input.fmt.bits_per_sample;
+
+    // data subchunk
+    strncpy(output.data.subchunk_id, "data", 4);
+    output.data.num_samples = num_samples;
+    output.data.samples = samples;
+    output.data.subchunk_size = num_samples * (output.fmt.num_channels) * (output.fmt.bits_per_sample)/8;
+
+    // header chunk
+    strncpy(output.header.chunk_id, "RIFF", 4);
+    strncpy(output.header.format, "WAVE", 4);
+    output.header.chunk_size = 4 + (8 + output.fmt.subchunk_size) + (8 + output.data.subchunk_size);
+
+    return output;
+}
+
+/* Using a slightly modified version of the input-side algorithm presented in lecture */
+void convolve(float* x, int N, float* h, int M, float* y, int P) {
+    int n, m;
+
+	// Clear output buffer y[]
+	for (n = 0; n < P; n++) {
+		y[n] = 0.0;
+	}
+
+	// Outer Loop: Process each input value x[n] in turn
+	for (n = 0; n < N; n++) {
+		// Inner Loop: process x[n] with each sample of h[n]
+		for (m = 0; m < M; m++) {
+			y[n+m] += x[n] * h[m];
+		}
+	}
+}
+
+/* Some conversion functions */
+float short_to_float(short i) {
+    float f;
+    if (i < 0) { f = ((float)i) / 32768.0f; }
+    else { f = ((float)i) / 32767.0f; }
+    return f;
+}
+
+short float_to_short(float i) {
+    short s;
+    if (i < 0) { s = rint(i * 32768.0f); }
+    else { s = rint(i * 32767.0f); }
+    return s;
+}
+
+/* Take the input and ir wav_files, format their data as floats and perform the convolution */
+wav_file convolve_files(wav_file input, wav_file ir) {
+    int N = input.data.num_samples;
+    int M = ir.data.num_samples;
+    int P = N + M + 1;
+
+    float x[N];
+    float h[M];
+    float y[P];
+
+    // Convert the stored sample values as floats from -1.0 to 1.0
+    int i;
+    for (i = 0; i < N; i++) {
+        x[i] = short_to_float(input.data.samples[i]);
+    }
+    for (i = 0; i < M; i++) {
+        h[i] = short_to_float(ir.data.samples[i]);
+    }
+
+    // Perform the convolution
+    convolve(x, N, h, M, y, P);
+
+    // The convolution can result in values > 1.0, make sure to scale them
+    float largest = 1.0;
+    for (i = 0; i < P; i++) {
+        if (abs(y[i]) > largest) { largest = abs(y[i]); }
+    }
+    printf("\nScaling output by %f\n\n", largest);
+
+    // Convert the floats now stored in y back into sample values
+    short samples[P];
+    for (i = 0; i < P; i++) {
+        samples[i] = float_to_short(y[i] / largest);
+    }
+
+    // Create the output wav file using the above data
+    return create_wav(samples, P, input);
 }
 
 /***************************
@@ -263,7 +370,11 @@ int main(int argc, char* argv[]) {
     printf("\nIMPULSE RESPONSE:\n");
     print_file_data(ir);
 
-    write_to_file(input, argv[3]);
+    wav_file output = convolve_files(input, ir);
+    printf("\nOUTPUT FILE:\n");
+    print_file_data(output);
+
+    write_to_file(output, argv[3]);
 
     return EXIT_SUCCESS;
 }
