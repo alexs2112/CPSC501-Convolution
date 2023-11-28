@@ -120,17 +120,16 @@ void get_file_data(file_data &data, FILE* file, int sample_size) {
 
     int num_samples = data.subchunk_size / sample_size;
     data.num_samples = num_samples;
-    short samples[num_samples];
+    data.samples = (short *)malloc(data.subchunk_size);
     for (int i = 0; i < num_samples; i++) {
         char value[sample_size];
         fread(&value, sample_size, 1, file);
         if (sample_size==2) {
-            samples[i] = short_from_buffer(value);
+            data.samples[i] = short_from_buffer(value);
         } else {
-            samples[i] = int_from_buffer(value);
+            data.samples[i] = int_from_buffer(value);
         }
     }
-    data.samples = samples;
 }
 
 /* Read the filename given and store all wav file data into the returned wav_file */
@@ -302,7 +301,7 @@ wav_file convolve_files(wav_file input, wav_file ir) {
     printf("\nScaling output by %f\n\n", largest);
 
     // Convert the floats now stored in y back into sample values
-    short samples[P];
+    short *samples = (short *)malloc(P * input.fmt.block_align);
     for (i = 0; i < P; i++) {
         samples[i] = float_to_short(y[i] / largest);
     }
@@ -375,6 +374,10 @@ int main(int argc, char* argv[]) {
     print_file_data(output);
 
     write_to_file(output, argv[3]);
+
+    free(input.data.samples);
+    free(ir.data.samples);
+    free(output.data.samples);
 
     return EXIT_SUCCESS;
 }
