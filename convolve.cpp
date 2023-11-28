@@ -277,9 +277,10 @@ wav_file convolve_files(wav_file input, wav_file ir) {
     int M = ir.data.num_samples;
     int P = N + M + 1;
 
-    float x[N];
-    float h[M];
-    float y[P];
+    int f = sizeof(float);
+    float *x = (float *)malloc(N * f);
+    float *h = (float *)malloc(M * f);
+    float *y = (float *)malloc(P * f);
 
     // Convert the stored sample values as floats from -1.0 to 1.0
     int i;
@@ -305,6 +306,11 @@ wav_file convolve_files(wav_file input, wav_file ir) {
     for (i = 0; i < P; i++) {
         samples[i] = float_to_short(y[i] / largest);
     }
+
+    // Clean up the float arrays
+    free(x);
+    free(h);
+    free(y);
 
     // Create the output wav file using the above data
     return create_wav(samples, P, input);
