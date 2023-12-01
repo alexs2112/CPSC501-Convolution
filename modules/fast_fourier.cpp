@@ -104,7 +104,7 @@ void complex_multiply(double *x, double *h, double *output, int size) {
 //    M: length of h
 //    y: output signal samples, scaled to be between -1.0 and 1.0
 //    P: length of y, this should equal N + M - 1
-void fft_convolve(float *x, int N, float *h, int M, double *y, int P) {
+void fft_convolution(float *x, int N, float *h, int M, double *y, int P) {
     int padded_size = next_power(P);
 
     double* padded_x = new double[2 * padded_size];
@@ -127,98 +127,4 @@ void fft_convolve(float *x, int N, float *h, int M, double *y, int P) {
     delete(padded_x);
     delete(padded_h);
     delete(padded_out);
-}
-
-/***************************************************************************************************
- * EVERYTHING BELOW THIS LINE SHOULD BE DELETED AND STUFF SHOULD BE ORGANIZED BETTER ONCE IT WORKS *
- ***************************************************************************************************/
-#include "../headers/file_structs.h"
-#include <cstring>
-
-float short_to_float_pt2(short i) {
-    float f;
-    if (i < 0) { f = ((float)i) / 32768.0f; }
-    else { f = ((float)i) / 32767.0f; }
-    return f;
-}
-
-short double_to_short(double i) {
-    short s;
-    if (i < 0) { s = rint(i * 32768.0); }
-    else { s = rint(i * 32767.0); }
-    return s;
-}
-
-wav_file create_wav_pt2(short* samples, int num_samples, wav_file input) {
-    wav_file output;
-
-    // fmt subchunk
-    strncpy(output.fmt.subchunk_id, "fmt ", 4);
-    output.fmt.subchunk_size = 16;
-    output.fmt.audio_format = 1;
-    output.fmt.num_channels = input.fmt.num_channels;
-    output.fmt.sample_rate = input.fmt.sample_rate;
-    output.fmt.byte_rate = input.fmt.byte_rate;
-    output.fmt.block_align = input.fmt.block_align;
-    output.fmt.bits_per_sample = input.fmt.bits_per_sample;
-
-    // data subchunk
-    strncpy(output.data.subchunk_id, "data", 4);
-    output.data.num_samples = num_samples;
-    output.data.samples = samples;
-    output.data.subchunk_size = num_samples * (output.fmt.num_channels) * (output.fmt.bits_per_sample)/8;
-
-    // header chunk
-    strncpy(output.header.chunk_id, "RIFF", 4);
-    strncpy(output.header.format, "WAVE", 4);
-    output.header.chunk_size = 4 + (8 + output.fmt.subchunk_size) + (8 + output.data.subchunk_size);
-
-    return output;
-}
-
-wav_file convolve_files_but_fast(wav_file input, wav_file ir) {
-    int N = input.data.num_samples;
-    int M = ir.data.num_samples;
-    int P = N + M - 1;
-
-    int f = sizeof(float);
-    float *x = new float[N];
-    float *h = new float[M];
-    double *y = new double[P];
-
-    // Convert the stored sample values as floats from -1.0 to 1.0
-    int i;
-    for (i = 0; i < N; i++) {
-        x[i] = short_to_float_pt2(input.data.samples[i]);
-    }
-    for (i = 0; i < M; i++) {
-        h[i] = short_to_float_pt2(ir.data.samples[i]);
-    }
-    for (i = 0; i < P; i++) {
-        y[i] = 0.0;
-    }
-
-    // Perform the convolution
-    fft_convolve(x, N, h, M, y, P);
-
-    // The convolution can result in values > 1.0, make sure to scale them
-    float largest = 1.0;
-    for (i = 0; i < P; i++) {
-        if (abs(y[i]) > largest) { largest = abs(y[i]); }
-    }
-    printf("\nScaling output by %f\n\n", largest);
-
-    // Convert the floats now stored in y back into sample values
-    short *samples = (short *)malloc(P * input.fmt.block_align);
-    for (i = 0; i < P; i++) {
-        samples[i] = double_to_short(y[i] / largest);
-    }
-
-    // Clean up the float arrays
-    delete(x);
-    delete(h);
-    delete(y);
-
-    // Create the output wav file using the above data
-    return create_wav_pt2(samples, P, input);
 }
