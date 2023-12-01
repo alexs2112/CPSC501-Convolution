@@ -3,3 +3,4 @@ provided/
 convolve
 *.wav
 *.txt
+gmon.out
