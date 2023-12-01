@@ -9,6 +9,7 @@
 #include "headers/reader.h"
 #include "headers/writer.h"
 #include "headers/convolution.h"
+#include "headers/fast_fourier.h"
 #include "headers/misc.h"
 
 using namespace std;
@@ -32,7 +33,7 @@ int main(int argc, char* argv[]) {
     printf("\nIMPULSE RESPONSE:\n");
     print_file_data(ir);
 
-    wav_file output = convolve_files(input, ir);
+    wav_file output = convolve_files_but_fast(input, ir);
     printf("\nOUTPUT FILE:\n");
     print_file_data(output);
 
