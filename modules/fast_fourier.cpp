@@ -142,7 +142,8 @@ void fft_convolve(float *x, int N, float *h, int M, double *y, int P) {
     unsigned int segment_signals = carr_signals / 2;
     double *complex_x = (double *)malloc(carr_length * sizeof(double));
     double *output = (double *)malloc(carr_length * sizeof(double) * 2 - sizeof(double));
-    int i;
+    int i, j;
+    unsigned int max = 0;
     for (i = 0; i < N; i += segment_signals) {
         // Perform FFT on the new segment
         unsigned int signals;
@@ -159,17 +160,20 @@ void fft_convolve(float *x, int N, float *h, int M, double *y, int P) {
         // Put the result into the output buffer
         convolution(complex_x, complex_h, carr_length, output, carr_length * 2 - 1, carr_signals);
 
-        // Then overlap add the result back into y, assume that y is an empty array of doubles at this point
-        for (int j = 0; j < carr_length; j++) {
-            y[i * segment_signals + j] += output[j];
+        // Then overlap add the result back into y, assume that y is an empty array of doubles at the start
+        for (j = 0; j < carr_signals; j++) {
+            // Sometimes this overflows because our arrays are not correctly sized
+            if ((i + j) < P) {
+                y[i + j] += output[j * 2];
+            }
         }
     }
 
-    printf("Free h\n");
+    for (i = 0; i < P; i++)
+        y[i] /= (double)N;
+
     free(complex_h);
-    printf("Free x\n");
     free(complex_x);
-    printf("Free out\n");
     free(output);
 }
 
