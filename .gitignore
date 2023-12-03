@@ -1,6 +1,7 @@
 .vscode/
 provided/
 convolve
+test
 *.wav
 *.txt
 gmon.out

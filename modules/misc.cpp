@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <sys/stat.h>
 #include "../headers/file_structs.h"
 
@@ -13,6 +14,7 @@ void print_id(char buf[]) {
     }
     printf("\n");
 }
+
 void print_file_data(wav_file wav) {
     printf("\tChunk ID: ");
     print_id(wav.header.chunk_id);
@@ -35,10 +37,33 @@ void print_file_data(wav_file wav) {
     printf("\tSubchunk Size: %d\n", wav.data.subchunk_size);
     printf("\tSample Count: %d\n", wav.data.num_samples);
 }
+
 void exit_if_invalid(char* path) {
     struct stat sb;
     if (stat(path, &sb) != 0) {
         printf("Error: Could not find file: %s\n", path);
         exit(EXIT_FAILURE);
     }
+}
+
+/* Some conversion functions */
+float short_to_float(short i) {
+    float f;
+    if (i < 0) { f = ((float)i) / 32768.0f; }
+    else { f = ((float)i) / 32767.0f; }
+    return f;
+}
+
+short float_to_short(float i) {
+    short s;
+    if (i < 0) { s = rint(i * 32768.0f); }
+    else { s = rint(i * 32767.0f); }
+    return s;
+}
+
+short double_to_short(double i) {
+    short s;
+    if (i < 0) { s = rint(i * 32768.0); }
+    else { s = rint(i * 32767.0); }
+    return s;
 }

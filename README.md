@@ -21,3 +21,6 @@ sys     0m0.710s
 
 >>> gprof convolve linear-flute.out
 ```
+
+### Unit Testing:
+Unit tests are available through the `test.cpp` file. This can be compiled using `make test` and run as `./test`.

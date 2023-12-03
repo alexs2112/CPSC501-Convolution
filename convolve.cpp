@@ -84,28 +84,6 @@ wav_file create_wav(short* samples, int num_samples, wav_file input) {
     return output;
 }
 
-/* Some conversion functions */
-float short_to_float(short i) {
-    float f;
-    if (i < 0) { f = ((float)i) / 32768.0f; }
-    else { f = ((float)i) / 32767.0f; }
-    return f;
-}
-
-short float_to_short(float i) {
-    short s;
-    if (i < 0) { s = rint(i * 32768.0f); }
-    else { s = rint(i * 32767.0f); }
-    return s;
-}
-
-short double_to_short(double i) {
-    short s;
-    if (i < 0) { s = rint(i * 32768.0); }
-    else { s = rint(i * 32767.0); }
-    return s;
-}
-
 /* Take the input and ir wav_files, format their data as floats and perform the convolution */
 wav_file convolution(wav_file input, wav_file ir) {
     int N = input.data.num_samples;
