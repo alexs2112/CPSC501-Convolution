@@ -211,3 +211,54 @@ sys     0m0.139s
 **Regression Testing**:
  - A minor bug with the `for` loop values was caught by the existing unit tests.
  - Manual convolution testing is successful and has expected results.
+
+### Manual Code Tuning #3:
+ - The `four1` algorithm as given to us uses doubles as its data type of choice. We don't need that level of precision for these simple convolutions and can change them all to floats.
+ - As floats are half the size of doubles, this will drastically speed up operations that involve the various double arrays that are prevalent in the code.
+
+**Commit**: []()
+
+**Code Changes**:
+ - The main code change is present in the `four1` method, although there are many other places where doubles are changed to floats for performance.
+ - Consult the github commit to see the full list of changes.
+```c
+void four1(float *data, int nn, int isign) {
+    unsigned long n, mmax, m, j, istep, i;
+    float wtemp, wr, wpr, wpi, wi, theta;
+    float tempr, tempi;
+    ...
+}
+```
+
+**Run Time Performance**:
+```
+>>> time ./convolve input/FluteDry.wav ir/taj_mahal.wav output/out.wav
+real    0m5.100s
+user    0m4.475s
+sys     0m0.150s
+>>> gprof convolve profiling/flute-manual-3.out
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 92.60      3.88     3.88        3     1.29     1.29  four1(float*, int, int)
+  1.91      3.96     0.08                             complex_multiply(void*)
+  1.67      4.03     0.07        2     0.04     0.04  zero_padding(float*, int, float*, int)
+```
+```
+>>> time ./convolve input/GuitarDry.wav ir/large_brite_hall.wav output/out.wav
+real    0m2.133s
+user    0m1.700s
+sys     0m0.110s
+>>> gprof convolve profiling/guitar-manual-3.out
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 88.24      1.35     1.35        3     0.45     0.45  four1(float*, int, int)
+  5.88      1.44     0.09                             complex_multiply(void*)
+  1.96      1.47     0.03        2     0.01     0.01  zero_padding(float*, int, float*, int)
+```
+ - The number of seconds per call of the `four1` function has been drastically reduced. For the `FluteDry` convolution, this has been reduced from 1.6 seconds per call to 1.29 seconds per call. For the `GuitarDry` convolution, this has been reduced from 0.63 seconds per call to 0.45 seconds per call.
+ - Changing doubles to floats has decreased the total run speed by 1/6th. That is almost a 20% increase in speed.
+ - This is pretty clearly a huge performance boost
+
+**Regression Testing**:
+ - There was mild concern that changing from doubles to floats would cause incorrect outputs as there is a loss of 4 bytes of precision.
+ - This is not the case, all of the unit tests pass and manually running the convolution code using the new `four1` function produces the same result.

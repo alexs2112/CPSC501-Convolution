@@ -1,5 +1,5 @@
 /* Using a slightly modified version of the input-side algorithm presented in lecture */
-void linear_convolution(float* x, int N, float* h, int M, double* y, int P) {
+void linear_convolution(float* x, int N, float* h, int M, float* y, int P) {
     int n, m;
 
 	// Clear output buffer y[]
@@ -11,7 +11,7 @@ void linear_convolution(float* x, int N, float* h, int M, double* y, int P) {
 	for (n = 0; n < N; n++) {
 		// Inner Loop: process x[n] with each sample of h[n]
 		for (m = 0; m < M; m++) {
-			y[n+m] += (double)(x[n] * h[m]);
+			y[n+m] += (float)(x[n] * h[m]);
 		}
 	}
 }

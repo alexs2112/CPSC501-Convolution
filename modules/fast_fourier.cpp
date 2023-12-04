@@ -16,10 +16,10 @@
 //    data pointer to data array, this should be subtracted by 1 as our arrays are 0 aligned (ie. four1(data - 1, 1024, 1))
 //    nn must be a power of 2, it is the number of complex data points in data (ie. half the length of data)
 //    isign = +1 for FFT, -1 for IFFT
-void four1(double *data, int nn, int isign) {
+void four1(float *data, int nn, int isign) {
     unsigned long n, mmax, m, j, istep, i;
-    double wtemp, wr, wpr, wpi, wi, theta;
-    double tempr, tempi;
+    float wtemp, wr, wpr, wpi, wi, theta;
+    float tempr, tempi;
 
     n = nn << 1;
     j = 1;
@@ -78,10 +78,10 @@ unsigned int next_power(unsigned int v) {
 }
 
 // Output size should be 2x the padded size to account for complex numbers
-void zero_padding(float *signal, int input_size, double *output, int output_size) {
+void zero_padding(float *signal, int input_size, float *output, int output_size) {
     int i;
     for (i = 0; i < input_size; i++) {
-        output[i*2] = (double)signal[i];
+        output[i*2] = signal[i];
         output[i*2 + 1] = 0.0;
     }
     for (i = input_size * 2; i < output_size; i++) {
@@ -91,9 +91,9 @@ void zero_padding(float *signal, int input_size, double *output, int output_size
 
 /* Perform the complex multiplication on a segment of three arrays */
 struct complex_param {
-    double *x;
-    double *h;
-    double *output;
+    float *x;
+    float *h;
+    float *output;
     int size;
 };
 
@@ -110,7 +110,7 @@ void *complex_multiply(void *v) {
 }
 
 /* Perform complex multiplication in several threads for performance */
-void multithread_multiply(double *x, double *h, double *output, int size) {
+void multithread_multiply(float *x, float *h, float *output, int size) {
     int num_threads;
     if (size < 4 * COMPLEX_THREADS)
         num_threads = 1;
@@ -141,12 +141,12 @@ void multithread_multiply(double *x, double *h, double *output, int size) {
 //    M: length of h
 //    y: output signal samples, scaled to be between -1.0 and 1.0
 //    P: length of y, this should equal N + M - 1
-void fft_convolution(float *x, int N, float *h, int M, double *y, int P) {
+void fft_convolution(float *x, int N, float *h, int M, float *y, int P) {
     int padded_size = next_power(P);
 
-    double* padded_x = new double[2 * padded_size];
-    double* padded_h = new double[2 * padded_size];
-    double* padded_out = new double[2 * padded_size];
+    float* padded_x = new float[2 * padded_size];
+    float* padded_h = new float[2 * padded_size];
+    float* padded_out = new float[2 * padded_size];
 
     zero_padding(x, N, padded_x, 2 * padded_size);
     zero_padding(h, M, padded_h, 2 * padded_size);
@@ -159,7 +159,7 @@ void fft_convolution(float *x, int N, float *h, int M, double *y, int P) {
     four1(padded_out - 1, padded_size, -1);
 
     for (int i = 0; i < P; i++)
-        y[i] = padded_out[i * 2] / (double)N;
+        y[i] = padded_out[i * 2] / (float)N;
     
     delete(padded_x);
     delete(padded_h);

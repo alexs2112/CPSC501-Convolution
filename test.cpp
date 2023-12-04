@@ -52,10 +52,10 @@ int test_linear_convolution() {
     int M = 2;
     float h[] = { 0.1, 0.2 };
     int P = N + M + 1;
-    double y[P];
+    float y[P];
     linear_convolution(x, N, h, M, y, P);
 
-    double expected[] = {
+    float expected[] = {
         0.020000,
         0.070000,
         0.100000,
@@ -80,10 +80,10 @@ int test_fft_convolution() {
     int M = 2;
     float h[] = { 0.1, 0.2 };
     int P = N + M - 1;
-    double y[P];
+    float y[P];
     fft_convolution(x, N, h, M, y, P);
 
-    double expected[] = {
+    float expected[] = {
         0.026,
         0.093,
         0.133,
@@ -102,16 +102,16 @@ int test_fft_convolution() {
 
 // Copied from fast_fourier.cpp
 struct complex_param {
-    double *x;
-    double *h;
-    double *output;
+    float *x;
+    float *h;
+    float *output;
     int size;
 };
 
 int test_complex_multiplication() {
-    double x[] = { 1, 2, 3, 4 };
-    double h[] = { 8, 7, 6, 5 };
-    double o[4];
+    float x[] = { 1, 2, 3, 4 };
+    float h[] = { 8, 7, 6, 5 };
+    float o[4];
 
     complex_param p;
     p.x = &x[0];
@@ -120,7 +120,7 @@ int test_complex_multiplication() {
     p.size = 4;
     complex_multiply((void *)&p);
 
-    double e[] = { -6.0, 23.0, -2.0, 39.0 };
+    float e[] = { -6.0, 23.0, -2.0, 39.0 };
 
     for (int i = 0; i < 4; i++) {
         if (o[i] != e[i]) {
@@ -134,9 +134,9 @@ int test_complex_multiplication() {
 
 int test_zero_padding() {
     float signal[] = { 0.5, 0.6, 0.7 };
-    double output[8];
+    float output[8];
     zero_padding(signal, 3, output, 8);
-    double expected[] = { 0.5, 0.0, 0.6, 0.0, 0.7, 0.0, 0.0, 0.0 };
+    float expected[] = { 0.5, 0.0, 0.6, 0.0, 0.7, 0.0, 0.0, 0.0 };
     for (int i = 0; i < 8; i++) {
         if ((float)(output[i]) != (float)(expected[i])) {
             printf("Error in zero padding.\n\tExpected: [%.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f]\n\tActual:   [%.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f]\n",

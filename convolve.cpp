@@ -99,7 +99,7 @@ wav_file convolution(wav_file input, wav_file ir) {
     // x and h arrays are handled as decimals between -1.0 and 1.0
     float *x = new float[N];
     float *h = new float[M];
-    double *y = new double[P];
+    float *y = new float[P];
 
     // Convert the stored sample values as floats from -1.0 to 1.0
     for (i = 0; i < N; i++)
@@ -107,7 +107,7 @@ wav_file convolution(wav_file input, wav_file ir) {
     for (i = 0; i < M; i++)
         h[i] = short_to_float(ir.data.samples[i]);
     for (i = 0; i < P; i++)
-        y[i] = 0.0;
+        y[i] = 0.0f;
 
     // Use FFT convolution when the size of M is greater than 60 samples, otherwise use linear convolution
     if (M > 60) {
@@ -117,7 +117,7 @@ wav_file convolution(wav_file input, wav_file ir) {
     }
 
     // The convolution can result in values > 1.0, make sure to scale them
-    double largest = 1.0;
+    float largest = 1.0;
     for (i = 0; i < P; i++) {
         if (abs(y[i]) > largest) { largest = abs(y[i]); }
     }
