@@ -36,16 +36,16 @@ int main(int argc, char* argv[]) {
     exit_if_invalid(argv[2]);
 
     wav_file input = read_file(argv[1]);
-    printf("INPUT FILE:\n");
-    print_file_data(input);
+    // printf("INPUT FILE:\n");
+    // print_file_data(input);
 
     wav_file ir = read_file(argv[2]);
-    printf("\nIMPULSE RESPONSE:\n");
-    print_file_data(ir);
+    // printf("\nIMPULSE RESPONSE:\n");
+    // print_file_data(ir);
 
     wav_file output = convolution(input, ir);
-    printf("\nOUTPUT FILE:\n");
-    print_file_data(output);
+    // printf("\nOUTPUT FILE:\n");
+    // print_file_data(output);
 
     write_to_file(output, argv[3]);
 

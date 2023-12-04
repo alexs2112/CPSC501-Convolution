@@ -1,0 +1,292 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 94.22      5.38     5.38        3     1.79     1.79  four1(double*, int, int)
+  1.75      5.48     0.10        2     0.05     0.05  zero_padding(float*, int, double*, int)
+  1.75      5.58     0.10                             complex_multiply(void*)
+  0.88      5.63     0.05        1     0.05     0.06  convolution(wav_file, wav_file)
+  0.53      5.66     0.03        2     0.01     0.01  get_file_data(file_data&, _IO_FILE*, int)
+  0.35      5.68     0.02        1     0.02     0.02  write_file_data(file_data, _IO_FILE*, int)
+  0.18      5.69     0.01  2810254     0.00     0.00  exit_if_invalid(char*)
+  0.18      5.70     0.01       12     0.00     0.46  fft_convolution(float*, int, float*, int, double*, int)
+  0.18      5.71     0.01                             double_to_short(double)
+  0.00      5.71     0.00  2810354     0.00     0.00  std::abs(double)
+  0.00      5.71     0.00  2810262     0.00     0.00  short_from_buffer(char*)
+  0.00      5.71     0.00  2810257     0.00     0.00  fwriteShortLSB(short, _IO_FILE*)
+  0.00      5.71     0.00  2810253     0.00     0.00  float_to_short(float)
+  0.00      5.71     0.00       10     0.00     0.00  int_from_buffer(char*)
+  0.00      5.71     0.00        5     0.00     0.00  fwriteIntLSB(int, _IO_FILE*)
+  0.00      5.71     0.00        3     0.00     0.46  print_id(char*)
+  0.00      5.71     0.00        2     0.00     0.00  get_file_format(file_fmt&, _IO_FILE*)
+  0.00      5.71     0.00        2     0.00     0.00  get_file_header(file_header&, _IO_FILE*)
+  0.00      5.71     0.00        2     0.00     2.06  print_file_data(wav_file)
+  0.00      5.71     0.00        2     0.00     0.00  multithread_multiply(double*, double*, double*, int)
+  0.00      5.71     0.00        2     0.00     0.01  read_file(char*)
+  0.00      5.71     0.00        1     0.00     0.00  create_wav(short*, int, wav_file)
+  0.00      5.71     0.00        1     0.00     0.00  next_power(unsigned int)
+  0.00      5.71     0.00        1     0.00     0.02  write_to_file(wav_file, char*)
+  0.00      5.71     0.00        1     0.00     0.00  write_file_format(file_fmt, _IO_FILE*)
+  0.00      5.71     0.00        1     0.00     0.00  write_file_header(file_header, _IO_FILE*)
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012-2022 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 4 byte(s) for 0.18% of 5.71 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]     98.1    0.00    5.60                 main [1]
+                0.00    4.12       2/2           print_file_data(wav_file) [4]
+                0.00    1.37       3/3           print_id(char*) [5]
+                0.05    0.01       1/1           convolution(wav_file, wav_file) [8]
+                0.00    0.03       2/2           read_file(char*) [10]
+                0.00    0.02       1/1           write_to_file(wav_file, char*) [11]
+-----------------------------------------------
+                0.00    1.37       3/12          print_id(char*) [5]
+                0.01    4.11       9/12          print_file_data(wav_file) [4]
+[2]     96.1    0.01    5.48      12         fft_convolution(float*, int, float*, int, double*, int) [2]
+                5.38    0.00       3/3           four1(double*, int, int) [3]
+                0.10    0.00       2/2           zero_padding(float*, int, double*, int) [6]
+                0.00    0.00       1/1           next_power(unsigned int) [31]
+                0.00    0.00       1/2           multithread_multiply(double*, double*, double*, int) [29]
+-----------------------------------------------
+                5.38    0.00       3/3           fft_convolution(float*, int, float*, int, double*, int) [2]
+[3]     94.2    5.38    0.00       3         four1(double*, int, int) [3]
+-----------------------------------------------
+                0.00    4.12       2/2           main [1]
+[4]     72.1    0.00    4.12       2         print_file_data(wav_file) [4]
+                0.01    4.11       9/12          fft_convolution(float*, int, float*, int, double*, int) [2]
+-----------------------------------------------
+                0.00    1.37       3/3           main [1]
+[5]     24.0    0.00    1.37       3         print_id(char*) [5]
+                0.00    1.37       3/12          fft_convolution(float*, int, float*, int, double*, int) [2]
+-----------------------------------------------
+                0.10    0.00       2/2           fft_convolution(float*, int, float*, int, double*, int) [2]
+[6]      1.8    0.10    0.00       2         zero_padding(float*, int, double*, int) [6]
+-----------------------------------------------
+                                                 <spontaneous>
+[7]      1.8    0.10    0.00                 complex_multiply(void*) [7]
+-----------------------------------------------
+                0.05    0.01       1/1           main [1]
+[8]      1.1    0.05    0.01       1         convolution(wav_file, wav_file) [8]
+                0.01    0.00 2810254/2810254     exit_if_invalid(char*) [13]
+                0.00    0.00 2810354/2810354     std::abs(double) [21]
+                0.00    0.00 2810253/2810253     float_to_short(float) [24]
+                0.00    0.00       1/2           multithread_multiply(double*, double*, double*, int) [29]
+                0.00    0.00       1/1           create_wav(short*, int, wav_file) [30]
+-----------------------------------------------
+                0.03    0.00       2/2           read_file(char*) [10]
+[9]      0.5    0.03    0.00       2         get_file_data(file_data&, _IO_FILE*, int) [9]
+                0.00    0.00 2810254/2810262     short_from_buffer(char*) [22]
+                0.00    0.00       2/10          int_from_buffer(char*) [25]
+-----------------------------------------------
+                0.00    0.03       2/2           main [1]
+[10]     0.5    0.00    0.03       2         read_file(char*) [10]
+                0.03    0.00       2/2           get_file_data(file_data&, _IO_FILE*, int) [9]
+                0.00    0.00       2/2           get_file_header(file_header&, _IO_FILE*) [28]
+                0.00    0.00       2/2           get_file_format(file_fmt&, _IO_FILE*) [27]
+-----------------------------------------------
+                0.00    0.02       1/1           main [1]
+[11]     0.4    0.00    0.02       1         write_to_file(wav_file, char*) [11]
+                0.02    0.00       1/1           write_file_data(file_data, _IO_FILE*, int) [12]
+                0.00    0.00       1/1           write_file_header(file_header, _IO_FILE*) [33]
+                0.00    0.00       1/1           write_file_format(file_fmt, _IO_FILE*) [32]
+-----------------------------------------------
+                0.02    0.00       1/1           write_to_file(wav_file, char*) [11]
+[12]     0.4    0.02    0.00       1         write_file_data(file_data, _IO_FILE*, int) [12]
+                0.00    0.00 2810253/2810257     fwriteShortLSB(short, _IO_FILE*) [23]
+                0.00    0.00       1/5           fwriteIntLSB(int, _IO_FILE*) [26]
+-----------------------------------------------
+                0.01    0.00 2810254/2810254     convolution(wav_file, wav_file) [8]
+[13]     0.2    0.01    0.00 2810254         exit_if_invalid(char*) [13]
+-----------------------------------------------
+                                                 <spontaneous>
+[14]     0.2    0.01    0.00                 double_to_short(double) [14]
+-----------------------------------------------
+                0.00    0.00 2810354/2810354     convolution(wav_file, wav_file) [8]
+[21]     0.0    0.00    0.00 2810354         std::abs(double) [21]
+-----------------------------------------------
+                0.00    0.00       8/2810262     get_file_format(file_fmt&, _IO_FILE*) [27]
+                0.00    0.00 2810254/2810262     get_file_data(file_data&, _IO_FILE*, int) [9]
+[22]     0.0    0.00    0.00 2810262         short_from_buffer(char*) [22]
+-----------------------------------------------
+                0.00    0.00       4/2810257     write_file_format(file_fmt, _IO_FILE*) [32]
+                0.00    0.00 2810253/2810257     write_file_data(file_data, _IO_FILE*, int) [12]
+[23]     0.0    0.00    0.00 2810257         fwriteShortLSB(short, _IO_FILE*) [23]
+-----------------------------------------------
+                0.00    0.00 2810253/2810253     convolution(wav_file, wav_file) [8]
+[24]     0.0    0.00    0.00 2810253         float_to_short(float) [24]
+-----------------------------------------------
+                0.00    0.00       2/10          get_file_header(file_header&, _IO_FILE*) [28]
+                0.00    0.00       2/10          get_file_data(file_data&, _IO_FILE*, int) [9]
+                0.00    0.00       6/10          get_file_format(file_fmt&, _IO_FILE*) [27]
+[25]     0.0    0.00    0.00      10         int_from_buffer(char*) [25]
+-----------------------------------------------
+                0.00    0.00       1/5           write_file_header(file_header, _IO_FILE*) [33]
+                0.00    0.00       1/5           write_file_data(file_data, _IO_FILE*, int) [12]
+                0.00    0.00       3/5           write_file_format(file_fmt, _IO_FILE*) [32]
+[26]     0.0    0.00    0.00       5         fwriteIntLSB(int, _IO_FILE*) [26]
+-----------------------------------------------
+                0.00    0.00       2/2           read_file(char*) [10]
+[27]     0.0    0.00    0.00       2         get_file_format(file_fmt&, _IO_FILE*) [27]
+                0.00    0.00       8/2810262     short_from_buffer(char*) [22]
+                0.00    0.00       6/10          int_from_buffer(char*) [25]
+-----------------------------------------------
+                0.00    0.00       2/2           read_file(char*) [10]
+[28]     0.0    0.00    0.00       2         get_file_header(file_header&, _IO_FILE*) [28]
+                0.00    0.00       2/10          int_from_buffer(char*) [25]
+-----------------------------------------------
+                0.00    0.00       1/2           convolution(wav_file, wav_file) [8]
+                0.00    0.00       1/2           fft_convolution(float*, int, float*, int, double*, int) [2]
+[29]     0.0    0.00    0.00       2         multithread_multiply(double*, double*, double*, int) [29]
+-----------------------------------------------
+                0.00    0.00       1/1           convolution(wav_file, wav_file) [8]
+[30]     0.0    0.00    0.00       1         create_wav(short*, int, wav_file) [30]
+-----------------------------------------------
+                0.00    0.00       1/1           fft_convolution(float*, int, float*, int, double*, int) [2]
+[31]     0.0    0.00    0.00       1         next_power(unsigned int) [31]
+-----------------------------------------------
+                0.00    0.00       1/1           write_to_file(wav_file, char*) [11]
+[32]     0.0    0.00    0.00       1         write_file_format(file_fmt, _IO_FILE*) [32]
+                0.00    0.00       4/2810257     fwriteShortLSB(short, _IO_FILE*) [23]
+                0.00    0.00       3/5           fwriteIntLSB(int, _IO_FILE*) [26]
+-----------------------------------------------
+                0.00    0.00       1/1           write_to_file(wav_file, char*) [11]
+[33]     0.0    0.00    0.00       1         write_file_header(file_header, _IO_FILE*) [33]
+                0.00    0.00       1/5           fwriteIntLSB(int, _IO_FILE*) [26]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012-2022 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+  [30] create_wav(short*, int, wav_file) [14] double_to_short(double) [22] short_from_buffer(char*)
+  [31] next_power(unsigned int) [13] exit_if_invalid(char*) [32] write_file_format(file_fmt, _IO_FILE*)
+   [8] convolution(wav_file, wav_file) [2] fft_convolution(float*, int, float*, int, double*, int) [33] write_file_header(file_header, _IO_FILE*)
+  [26] fwriteIntLSB(int, _IO_FILE*) [27] get_file_format(file_fmt&, _IO_FILE*) [29] multithread_multiply(double*, double*, double*, int)
+   [6] zero_padding(float*, int, double*, int) [28] get_file_header(file_header&, _IO_FILE*) [3] four1(double*, int, int)
+   [9] get_file_data(file_data&, _IO_FILE*, int) [25] int_from_buffer(char*) [5] print_id(char*)
+  [11] write_to_file(wav_file, char*) [4] print_file_data(wav_file) [10] read_file(char*)
+  [24] float_to_short(float)  [12] write_file_data(file_data, _IO_FILE*, int) [21] std::abs(double)
+  [23] fwriteShortLSB(short, _IO_FILE*) [7] complex_multiply(void*)

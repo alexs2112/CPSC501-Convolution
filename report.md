@@ -68,6 +68,8 @@ sys     0m0.075s
  - As this complex multiplication is done linearly on rather large inputs, it takes a long time. This can be multithreaded to do the full complex multiplication in parallel across many threads.
  - This code tuning creates a new struct to be used as a single parameter, instead of a list of parameters. It then delegates segments of the input arrays across several threads. Each of those threads process their segments of arrays and enters their result into their segment of the output.
 
+**Commit**: [ff275d26132e407ef5ddb82fb4d211b12c2e9d62](https://github.com/alexs2112/CPSC501-Convolution/commit/ff275d26132e407ef5ddb82fb4d211b12c2e9d62)
+
 **Code Changes**:
 ```c
 // Allow for 512 threads. This could realistically be larger as the input size is huge
@@ -141,3 +143,69 @@ sys     0m0.134s
  - This change added an additional test for complex multiplication.
  - This test also broke previous unit tests as multiplication does not happen if the number of threads is greater than the size of the input arrays. This has since been fixed.
  - Output files from manual regression tests on convolution are the same as before the change.
+
+### Manual Code Tuning #2:
+ - Zero padding and converting the input samples to complex arrays have been taking a relatively long time after previous optimizations. Some profiling taken from the result of the previous optimization:
+```
+>>> gprof convolve profiling/flute-manual-1.out
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 94.22      5.38     5.38        3     1.79     1.79  four1(double*, int, int)
+  1.75      5.48     0.10        2     0.05     0.05  zero_padding(float*, int, double*, int)
+
+>>> gprof convolve profiling/guitar-manual-1.out
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 93.30      2.09     2.09        3     0.70     0.70  four1(double*, int, int)
+  3.12      2.16     0.07                             complex_multiply(void*)
+  2.23      2.21     0.05        2     0.03     0.03  zero_padding(float*, int, double*, int)
+```
+ - This is because the `zero_padding` function iterates over the `output` array twice, first it zeroes the entire array, and then it copies values from the input array to it.
+ - This can be optimized by only going over the array once by zeroing the imaginary part of the array at the same time as copying values from the input array.
+    - *Note*: If the output array size is greater than twice the length of the input array then the remainder will still need to be zeroed. This is easy to accomplish by starting another `for` loop at the index of `2 * input_length + 1`.
+
+**Code Changes**:
+```c
+void zero_padding(float *signal, int input_size, double *output, int output_size) {
+    int i;
+    for (i = 0; i < input_size; i++) {
+        output[i*2] = (double)signal[i];
+        output[i*2 + 1] = 0.0;
+    }
+    for (i = input_size * 2 + 1; i < output_size; i++) {
+        output[i] = 0.0;
+    }
+}
+```
+
+**Run Time Performance**:
+```
+>>> time ./convolve input/FluteDry.wav ir/taj_mahal.wav output/out.wav
+real    0m6.031s
+user    0m5.411s
+sys     0m0.215s
+>>> gprof convolve profiling/flute-manual-2.out
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 92.47      4.79     4.79        3     1.60     1.60  four1(double*, int, int)
+  2.70      4.93     0.14                             complex_multiply(void*)
+  2.32      5.05     0.12        2     0.06     0.06  zero_padding(float*, int, double*, int)
+```
+```
+>>> time ./convolve input/GuitarDry.wav ir/large_brite_hall.wav output/out.wav
+real    0m2.611s
+user    0m2.244s
+sys     0m0.139s
+>>> gprof convolve profiling/guitar-manual-2.out
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 90.82      1.88     1.88        3     0.63     0.63  four1(double*, int, int)
+  4.83      1.98     0.10                             complex_multiply(void*)
+  1.93      2.02     0.04        2     0.02     0.02  zero_padding(float*, int, double*, int)
+```
+ - The time it takes for the program to complete has dropped by a reasonable amount.
+ - The relative time it takes for `zero_padding` to finish compared to the other functions of the program has also been dropped by a reasonable amount.
+
+**Regression Testing**:
+ - A minor bug with the `for` loop values was caught by the existing unit tests.
+ - Manual convolution testing is successful and has expected results.
