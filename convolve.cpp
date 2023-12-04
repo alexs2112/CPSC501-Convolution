@@ -16,6 +16,7 @@
 
 using namespace std;
 
+// How many samples in H are required for FFT convolution to be faster than linear convolution
 #define USE_FAST_FOURIER    60
 
 float short_to_float(short i);

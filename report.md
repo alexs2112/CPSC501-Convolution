@@ -216,7 +216,7 @@ sys     0m0.139s
  - The `four1` algorithm as given to us uses doubles as its data type of choice. We don't need that level of precision for these simple convolutions and can change them all to floats.
  - As floats are half the size of doubles, this will drastically speed up operations that involve the various double arrays that are prevalent in the code.
 
-**Commit**: []()
+**Commit**: [fdd35509d66e612d2a9cdd8c27d5902c155f592a](https://github.com/alexs2112/CPSC501-Convolution/commit/fdd35509d66e612d2a9cdd8c27d5902c155f592a)
 
 **Code Changes**:
  - The main code change is present in the `four1` method, although there are many other places where doubles are changed to floats for performance.
@@ -262,3 +262,38 @@ sys     0m0.110s
 **Regression Testing**:
  - There was mild concern that changing from doubles to floats would cause incorrect outputs as there is a loss of 4 bytes of precision.
  - This is not the case, all of the unit tests pass and manually running the convolution code using the new `four1` function produces the same result.
+
+### Compiler-Level Optimization:
+ - Previously, the `convolve` executable was compiled with the `g` debug flag and the `p` profiling flag. Both of these flags slow down performance by including debug and profiling information when the executable runs.
+ - Adding the `O3` flag to allow the gcc compiler to optimize the executable the maximum allowed amount will also speed up execution time.
+
+**Commit**: []()
+
+**Code Changes**:
+```Makefile
+convolve: convolve.cpp
+	g++ -O3 -o convolve convolve.cpp modules/reader.cpp modules/writer.cpp modules/convolution.cpp modules/fast_fourier.cpp modules/misc.cpp
+
+test: test.cpp
+	g++ -g -O3 -o test test.cpp modules/convolution.cpp modules/fast_fourier.cpp modules/misc.cpp
+```
+
+**Run Time Performance**:
+```
+>>> time ./convolve input/FluteDry.wav ir/taj_mahal.wav output/out.wav
+real    0m2.766s
+user    0m2.149s
+sys     0m0.154s
+```
+```
+>>> time ./convolve input/GuitarDry.wav ir/large_brite_hall.wav output/out.wav
+real    0m1.205s
+user    0m0.823s
+sys     0m0.106s
+```
+ - Pretty large increases to speed, both convolution tests are running nearly twice as fast as they were after the previous manual optimization.
+
+**Regression Testing**:
+ - Note that the `-O3` flag was added to the makefile for the unit testing suite. This is to ensure that the functions involved with the convolution are not broken by the compiler reorganizing code.
+ - Unit Tests continue to pass after having the dependent FFT and Linear Convolution functions optimized.
+ - Manual regression testing on the full convolution continues to produce the expected output.
