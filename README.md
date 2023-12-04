@@ -62,6 +62,6 @@ Unit tests are available through the `test.cpp` file that implements a custom un
 >>> ./test
 
 Test Run Complete.
-Tests Run: 4
+Tests Run: 5
 Test Failed: 0
 ```

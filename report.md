@@ -3,6 +3,10 @@ Alex Stevenson - 30073617
 
 Github Repository: https://github.com/alexs2112/CPSC501-Convolution
 
+
+
+
+
 ### Baseline Program
  - Initial version where convolution is implemented directly on the time domain in a linear matter.
  - The code for this version is stored in the [baseline branch](https://github.com/alexs2112/CPSC501-Convolution/tree/baseline) of the repository.
@@ -32,6 +36,10 @@ sys     0m0.154s
 >>> gprof convolve profiling/linear-guitar.out
 ```
 
+
+
+
+
 ### Algorithm Based Optimization:
  - Utilizing the FFT algorithm to re-implement the convolution using the frequency domain.
  - The code for this version before any further optimizations is stored in the [fft branch](https://github.com/alexs2112/CPSC501-Convolution/tree/fft) of the repository.
@@ -55,6 +63,10 @@ sys     0m0.075s
 
 **Regression Testing**:
  - Audio files produced from FFT convolution are the same as the ones produced by linear convolution.
+
+
+
+
 
 ### Manual Code Tuning #1:
  - The `complex_multiply` function very consistently takes the most time as a function call, taking 60% of the total processing time of the program. This is twice as much as the next largest function.
@@ -144,6 +156,10 @@ sys     0m0.134s
  - This test also broke previous unit tests as multiplication does not happen if the number of threads is greater than the size of the input arrays. This has since been fixed.
  - Output files from manual regression tests on convolution are the same as before the change.
 
+
+
+
+
 ### Manual Code Tuning #2:
  - Zero padding and converting the input samples to complex arrays have been taking a relatively long time after previous optimizations. Some profiling taken from the result of the previous optimization:
 ```
@@ -212,6 +228,10 @@ sys     0m0.139s
  - A minor bug with the `for` loop values was caught by the existing unit tests.
  - Manual convolution testing is successful and has expected results.
 
+
+
+
+
 ### Manual Code Tuning #3:
  - The `four1` algorithm as given to us uses doubles as its data type of choice. We don't need that level of precision for these simple convolutions and can change them all to floats.
  - As floats are half the size of doubles, this will drastically speed up operations that involve the various double arrays that are prevalent in the code.
@@ -263,11 +283,15 @@ sys     0m0.110s
  - There was mild concern that changing from doubles to floats would cause incorrect outputs as there is a loss of 4 bytes of precision.
  - This is not the case, all of the unit tests pass and manually running the convolution code using the new `four1` function produces the same result.
 
+
+
+
+
 ### Manual Code Tuning #4:
  - The `zero_padding` function performs repeated multiplications by 2 to get indices of the output array.
  - Strength Reduction can be applied to instead add by a fixed value every iteration instead of multiplying.
 
-**Commit**: []()
+**Commit**: [ed721fdee8e7511158f8b1c2820ba7afa9458e8d](https://github.com/alexs2112/CPSC501-Convolution/commit/ed721fdee8e7511158f8b1c2820ba7afa9458e8d)
 
 **Code Changes**:
 ```c
@@ -301,6 +325,7 @@ sys     0m0.121s
 real    0m2.059s
 user    0m1.695s
 sys     0m0.094s
+>>> gprof convolve profiling/guitar-manual-4.out
   %   cumulative   self              self     total           
  time   seconds   seconds    calls   s/call   s/call  name    
  89.61      1.38     1.38        3     0.46     0.46  four1(float*, int, int)
@@ -312,6 +337,84 @@ sys     0m0.094s
 **Regression Testing**:
  - Previous automated unit tests continue to pass.
  - Manual running of the convolution executable works as expected.
+
+
+
+
+
+### Manual Code Tuning #5:
+ - The `complex_multiply` function continues to be the second slowest function during execution of the code.
+ - The performance of this function can be improved by Partially Unrolling the code 3 times
+
+**Commit**: []()
+
+**Code Changes**:
+```c
+void *complex_multiply(void *v) {
+    // Perform complex multiplication
+    complex_param p = ((complex_param *)v)[0];
+    int k;
+    for (k = 0; k < p.size; k += 6) {
+        // Re Y[k] = Re X[k] Re H[k] - Im X[k] Im H[k]
+        // Im Y[k] = Im X[k] Re H[k] + Re X[k] Im H[k]
+        p.output[k] = p.x[k] * p.h[k] - p.x[k+1] * p.h[k+1];
+        p.output[k+1] = p.x[k+1] * p.h[k] + p.x[k] * p.h[k+1];
+        p.output[k+2] = p.x[k+2] * p.h[k+2] - p.x[k+3] * p.h[k+3];
+        p.output[k+3] = p.x[k+3] * p.h[k+2] + p.x[k+2] * p.h[k+3];
+        p.output[k+4] = p.x[k+4] * p.h[k+4] - p.x[k+5] * p.h[k+5];
+        p.output[k+5] = p.x[k+5] * p.h[k+4] + p.x[k+4] * p.h[k+5];
+    }
+    if (k == p.size - 4) {
+        p.output[k] = p.x[k] * p.h[k] - p.x[k+1] * p.h[k+1];
+        p.output[k+1] = p.x[k+1] * p.h[k] + p.x[k] * p.h[k+1];
+        p.output[k+2] = p.x[k+2] * p.h[k+2] - p.x[k+3] * p.h[k+3];
+        p.output[k+3] = p.x[k+3] * p.h[k+2] + p.x[k+2] * p.h[k+3];
+    }
+    if (k == p.size - 2) {
+        p.output[k] = p.x[k] * p.h[k] - p.x[k+1] * p.h[k+1];
+        p.output[k+1] = p.x[k+1] * p.h[k] + p.x[k] * p.h[k+1];
+    }
+    return 0;
+}
+```
+ - The resulting code segment is a lot uglier than before this change, however each iteration of the loop now handles 3 complex values of the input (`k += 6`) rather than only a single complex value (`k += 2`).
+
+**Run Time Performance**:
+```
+>>> time ./convolve input/FluteDry.wav ir/taj_mahal.wav output/out.wav
+real    0m4.789s
+user    0m4.196s
+sys     0m0.148s
+>>> gprof convolve profiling/flute-manual-5.out
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 93.00      3.72     3.72        3     1.24     1.24  four1(float*, int, int)
+  3.00      3.84     0.12                             complex_multiply(void*)
+  1.75      3.91     0.07        2     0.04     0.04  zero_padding(float*, int, float*, int)
+```
+```
+>>> time ./convolve input/GuitarDry.wav ir/large_brite_hall.wav output/out.wav
+real    0m2.006s
+user    0m1.655s
+sys     0m0.087s
+>>> gprof convolve profiling/guitar-manual-5.out
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 89.26      1.33     1.33        3     0.44     0.44  four1(float*, int, int)
+  4.03      1.39     0.06                             complex_multiply(void*)
+  2.01      1.42     0.03  1871492     0.00     0.00  fwriteShortLSB(short, _IO_FILE*)
+  2.01      1.45     0.03        2     0.01     0.01  zero_padding(float*, int, float*, int)
+```
+ - This optimization is fairly negligible and as a result it adds a minimal performance upgrade to the program.
+ - For the second test case of convolving `GuitarDry.wav`, for the first time the `zero_padding` function is no longer in the top 3 functions that take the most time during program execution.
+
+**Regression Testing**:
+ - Previous unit tests pass and manually running the convolution code outputs correct wav files.
+ - The old test for the `complex_multiply` function did not actually test a case where the input is not divisible by 6. A new test case has been constructed to test an input value of a length of 8.
+
+
+
+
 
 ### Compiler-Level Optimization:
  - Previously, the `convolve` executable was compiled with the `g` debug flag and the `p` profiling flag. Both of these flags slow down performance by including debug and profiling information when the executable runs.

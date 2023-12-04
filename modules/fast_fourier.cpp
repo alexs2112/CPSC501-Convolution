@@ -100,9 +100,26 @@ struct complex_param {
 void *complex_multiply(void *v) {
     // Perform complex multiplication
     complex_param p = ((complex_param *)v)[0];
-    for (int k = 0; k < p.size; k += 2) {
+    int k;
+    for (k = 0; k < p.size; k += 6) {
         // Re Y[k] = Re X[k] Re H[k] - Im X[k] Im H[k]
         // Im Y[k] = Im X[k] Re H[k] + Re X[k] Im H[k]
+        p.output[k] = p.x[k] * p.h[k] - p.x[k+1] * p.h[k+1];
+        p.output[k+1] = p.x[k+1] * p.h[k] + p.x[k] * p.h[k+1];
+
+        p.output[k+2] = p.x[k+2] * p.h[k+2] - p.x[k+3] * p.h[k+3];
+        p.output[k+3] = p.x[k+3] * p.h[k+2] + p.x[k+2] * p.h[k+3];
+
+        p.output[k+4] = p.x[k+4] * p.h[k+4] - p.x[k+5] * p.h[k+5];
+        p.output[k+5] = p.x[k+5] * p.h[k+4] + p.x[k+4] * p.h[k+5];
+    }
+    if (k == p.size - 4) {
+        p.output[k] = p.x[k] * p.h[k] - p.x[k+1] * p.h[k+1];
+        p.output[k+1] = p.x[k+1] * p.h[k] + p.x[k] * p.h[k+1];
+        p.output[k+2] = p.x[k+2] * p.h[k+2] - p.x[k+3] * p.h[k+3];
+        p.output[k+3] = p.x[k+3] * p.h[k+2] + p.x[k+2] * p.h[k+3];
+    }
+    if (k == p.size - 2) {
         p.output[k] = p.x[k] * p.h[k] - p.x[k+1] * p.h[k+1];
         p.output[k+1] = p.x[k+1] * p.h[k] + p.x[k] * p.h[k+1];
     }

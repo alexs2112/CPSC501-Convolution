@@ -17,10 +17,11 @@
  ****************************************************************************/
 
 /* Test Definitions */
-#define NUM_TESTS   4
+#define NUM_TESTS   5
 int test_linear_convolution();
 int test_fft_convolution();
 int test_complex_multiplication();
+int test_complex_multiplication_2();
 int test_zero_padding();
 
 /* Main Function */
@@ -29,6 +30,7 @@ int main(int argc, char* argv[]) {
         test_linear_convolution,
         test_fft_convolution,
         test_complex_multiplication,
+        test_complex_multiplication_2,
         test_zero_padding,
     };
 
@@ -126,6 +128,30 @@ int test_complex_multiplication() {
         if (o[i] != e[i]) {
             printf("Error in complex multiplication.\n\tExpected: [%.1f, %.1f, %.1f, %.1f]\n\tActual: [%.1f, %.1f, %.1f, %.1f]\n",
                 e[0], e[1], e[2], e[3], o[0], o[1], o[2], o[3]);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int test_complex_multiplication_2() {
+    float x[] = { 1, 2, 3, 4, 5, 6, 7, 8};
+    float h[] = { 12, 11, 10, 9, 8, 7, 6, 5 };
+    float o[8];
+
+    complex_param p;
+    p.x = &x[0];
+    p.h = &h[0];
+    p.output = &o[0];
+    p.size = 8;
+    complex_multiply((void *)&p);
+
+    float e[] = { -10.0, 35.0, -6.0, 67.0, -2.0, 83.0, 2.0, 83 };
+
+    for (int i = 0; i < 8; i++) {
+        if (o[i] != e[i]) {
+            printf("Error in complex multiplication.\n\tExpected: [%.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f]\n\tActual: [%.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f]\n",
+                e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7]);
             return 1;
         }
     }
