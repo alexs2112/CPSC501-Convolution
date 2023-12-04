@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <pthread.h> 
 
 #define SIZE        8
 #define PI          3.141592653589793
 #define TWO_PI      (2.0 * PI)
 #define SWAP(a, b)  tempr=(a);(a)=(b);(b)=tempr
+
+#define COMPLEX_THREADS     512
 
 // Replaces data[1..2*nn] by its discrete Fourier transform if isign is input as 1
 // or replaces data[1..2*nn] by nn times its inverse discrete Fourier transform if isign is input as -1
@@ -86,13 +89,47 @@ void zero_padding(float *signal, int input_size, double *output, int output_size
     }
 }
 
-void complex_multiply(double *x, double *h, double *output, int size) {
+/* Perform the complex multiplication on a segment of three arrays */
+struct complex_param {
+    double *x;
+    double *h;
+    double *output;
+    int size;
+};
+
+void *complex_multiply(void *v) {
     // Perform complex multiplication
-    for (int k = 0; k < size; k += 2) {
+    complex_param p = ((complex_param *)v)[0];
+    for (int k = 0; k < p.size; k += 2) {
         // Re Y[k] = Re X[k] Re H[k] - Im X[k] Im H[k]
         // Im Y[k] = Im X[k] Re H[k] + Re X[k] Im H[k]
-        output[k] = x[k] * h[k] - x[k+1] * h[k+1];
-        output[k+1] = x[k+1] * h[k] + x[k] * h[k+1];
+        p.output[k] = p.x[k] * p.h[k] - p.x[k+1] * p.h[k+1];
+        p.output[k+1] = p.x[k+1] * p.h[k] + p.x[k] * p.h[k+1];
+    }
+    return 0;
+}
+
+/* Perform complex multiplication in several threads for performance */
+void multithread_multiply(double *x, double *h, double *output, int size) {
+    int num_threads;
+    if (size < 4 * COMPLEX_THREADS)
+        num_threads = 1;
+    else
+        num_threads = COMPLEX_THREADS;
+
+    pthread_t ids[num_threads];
+    int chunk = size / num_threads;
+    int i;
+    for (i = 0; i < num_threads; i++) {
+        complex_param p;
+        p.x = &x[i * chunk];
+        p.h = &h[i * chunk];
+        p.output = &output[i * chunk];
+        p.size = chunk;
+        pthread_create(&ids[i], NULL, complex_multiply, (void *)&p);
+    }
+    for (i = 0; i < num_threads; i++) {
+        pthread_join(ids[i], NULL);
     }
 }
 
@@ -117,7 +154,7 @@ void fft_convolution(float *x, int N, float *h, int M, double *y, int P) {
     four1(padded_x - 1, padded_size, 1);
     four1(padded_h - 1, padded_size, 1);
 
-    complex_multiply(padded_x, padded_h, padded_out, 2 * padded_size);
+    multithread_multiply(padded_x, padded_h, padded_out, 2*padded_size);
 
     four1(padded_out - 1, padded_size, -1);
 

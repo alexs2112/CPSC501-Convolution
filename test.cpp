@@ -9,15 +9,17 @@
 #endif
 
 /* Test Definitions */
-#define NUM_TESTS   2
+#define NUM_TESTS   3
 int test_linear_convolution();
 int test_fft_convolution();
+int test_complex_multiplication();
 
 /* Main Function */
 int main(int argc, char* argv[]) {
     int (*tests[])() = {
         test_linear_convolution,
         test_fft_convolution,
+        test_complex_multiplication,
     };
 
     // Run each test loaded into tests
@@ -82,6 +84,38 @@ int test_fft_convolution() {
             printf("Expected array after fft convolution: [%.3f, %.3f, %.3f, %.3f]\tActual: [%.3f, %.3f, %.3f, %.3f]\n",
                 expected[0], expected[1], expected[2], expected[3],
                 y[0], y[1], y[2], y[3]);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Copied from fast_fourier.cpp
+struct complex_param {
+    double *x;
+    double *h;
+    double *output;
+    int size;
+};
+
+int test_complex_multiplication() {
+    double x[] = { 1, 2, 3, 4 };
+    double h[] = { 8, 7, 6, 5 };
+    double o[4];
+
+    complex_param p;
+    p.x = &x[0];
+    p.h = &h[0];
+    p.output = &o[0];
+    p.size = 4;
+    complex_multiply((void *)&p);
+
+    double e[] = { -6.0, 23.0, -2.0, 39.0 };
+
+    for (int i = 0; i < 4; i++) {
+        if (o[i] != e[i]) {
+            printf("Error in complex multiplication.\n\tExpected: [%.1f, %.1f, %.1f, %.1f]\n\tActual: [%.1f, %.1f, %.1f, %.1f]\n",
+                e[0], e[1], e[2], e[3], o[0], o[1], o[2], o[3]);
             return 1;
         }
     }

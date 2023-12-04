@@ -3,5 +3,5 @@ provided/
 convolve
 test
 *.wav
-*.txt
+./*.txt
 gmon.out
