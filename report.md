@@ -53,6 +53,9 @@ sys     0m0.075s
 >>> gprof convolve profiling/fft-guitar.out
 ```
 
+**Regression Testing**:
+ - Audio files produced from FFT convolution are the same as the ones produced by linear convolution.
+
 ### Manual Code Tuning #1:
  - The `complex_multiply` function very consistently takes the most time as a function call, taking 60% of the total processing time of the program. This is twice as much as the next largest function.
 ```
@@ -133,3 +136,8 @@ sys     0m0.134s
   2.23      2.21     0.05        2     0.03     0.03  zero_padding(float*, int, double*, int)
 ```
  - As you can see with the above profiling results, the new `complex_multiply` function takes a fraction of the time that it used to. 1.75-3% of the total program runtime instead of the previous result of 60%
+
+**Regression Testing**:
+ - This change added an additional test for complex multiplication.
+ - This test also broke previous unit tests as multiplication does not happen if the number of threads is greater than the size of the input arrays. This has since been fixed.
+ - Output files from manual regression tests on convolution are the same as before the change.
