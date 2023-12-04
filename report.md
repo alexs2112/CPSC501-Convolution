@@ -1,10 +1,15 @@
 # CPSC 501 - Assignment 4, Optimization
 Alex Stevenson - 30073617
 
-Github Repository: https://github.com/alexs2112/CPSC501-Convolution
+GitHub Repository: https://github.com/alexs2112/CPSC501-Convolution
 
-
-
+**Supporting Material**:
+ - Other versions of the program code are stored in the [baseline branch](https://github.com/alexs2112/CPSC501-Convolution/tree/baseline) and the [fft branch](https://github.com/alexs2112/CPSC501-Convolution/tree/fft) of the repository.
+ - The electronic copy of the source code is provided in the `source.zip` file.
+ - Version control log reports are located in [`git-log.txt`](git-log.txt) and [`git-log-full.txt`](git-log-full.txt)
+ - Each section of this report will link to a corresponding commit to see the full code changes as part of that change. Only small code snippets of each change are pasted into this report.
+ - Profiler reports are located in the `profiling.zip` file.
+ - Unit tests are stored in the `test.cpp` file in the repository. This can be compiled using `make test` and run as `./test`. Other regression tests were done through manually using the `convolve` executable compiled from this source code.
 
 
 ### Baseline Program
@@ -420,7 +425,7 @@ sys     0m0.087s
  - Previously, the `convolve` executable was compiled with the `g` debug flag and the `p` profiling flag. Both of these flags slow down performance by including debug and profiling information when the executable runs.
  - Adding the `O3` flag to allow the gcc compiler to optimize the executable the maximum allowed amount will also speed up execution time.
 
-**Commit**: []()
+**Commit**: [910b2dd8769658b51c23c875fa4a104d3130fe42](https://github.com/alexs2112/CPSC501-Convolution/commit/910b2dd8769658b51c23c875fa4a104d3130fe42)
 
 **Code Changes**:
 ```Makefile

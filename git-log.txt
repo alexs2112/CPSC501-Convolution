@@ -1,0 +1,146 @@
+commit 910b2dd8769658b51c23c875fa4a104d3130fe42
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Mon Dec 4 15:24:38 2023 -0700
+
+    compiler-level optimization
+
+commit 05695544be809617d20fedbb02247b5f1d7caa86
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Mon Dec 4 15:21:17 2023 -0700
+
+    manual tuning: partial unrolling of complex_multiply function
+
+commit ed721fdee8e7511158f8b1c2820ba7afa9458e8d
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Mon Dec 4 14:23:30 2023 -0700
+
+    manual tuning: strength reduction on zero_padding, revert compiler optimization
+
+commit 21369776df3f12bf2c655054d3e5d819f073e71a
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Mon Dec 4 13:40:06 2023 -0700
+
+    compiler-level optimization
+
+commit fdd35509d66e612d2a9cdd8c27d5902c155f592a
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Mon Dec 4 13:18:12 2023 -0700
+
+    manual tuning: change from doubles to floats, massive increase in speed
+
+commit f2be2c3c9d1da9f74bf39dc35691630512be25d7
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Mon Dec 4 12:37:56 2023 -0700
+
+    more unit tests, update report
+
+commit 95c75c13fa76d35a41940a4d9794334dfae4f208
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Sun Dec 3 19:56:49 2023 -0700
+
+    manual tuning: jamming zero padding for loops to reduce iterations
+
+commit 6f1ffcf1cad9e13e11b42228bda5e6291fbb678e
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Sun Dec 3 18:24:51 2023 -0700
+
+    add regression testing section to report
+
+commit ff275d26132e407ef5ddb82fb4d211b12c2e9d62
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Sun Dec 3 18:14:07 2023 -0700
+
+    manual tuning: parallelize complex multiplication
+
+commit cb85c68e5bfa561d4d45ad585ceb290809e94d07
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Sun Dec 3 14:41:57 2023 -0700
+
+    start on the report
+
+commit c830c2fa764b8228cb4f18ff4f2aa35902ef5d83
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Sun Dec 3 14:12:52 2023 -0700
+
+    implement basic unit tests for regression
+
+commit 33ad90f578f4c5702f8a37b42621bc305ffd4a8e
+Merge: 2732fb8 6a053f9
+Author: Urist2112 <47425839+alexs2112@users.noreply.github.com>
+Date:   Fri Dec 1 15:54:11 2023 -0700
+
+    Merge pull request #1 from alexs2112/fft_convolve
+    
+    Implement FFT Convolution
+
+commit 6a053f9015a4717a376a39b58ca66b64f768f34b
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Fri Dec 1 15:53:04 2023 -0700
+
+    cleanup fast fourier convolution and main convolution function
+
+commit 4e8ee37052d9656c037b7be12e7734a58373a537
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Fri Dec 1 15:23:29 2023 -0700
+
+    simplified fft convolution algorithm works
+
+commit 15fe852ef05934b04c5b510170eecf63b38fcf30
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Fri Dec 1 13:39:01 2023 -0700
+
+    mild improvements, still not correct
+
+commit 810afdc9c2bcd61f1597b3ecc5706fb8f6566210
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Fri Dec 1 12:49:05 2023 -0700
+
+    FFT convolution without memory issues, doesn't work but doesn't crash
+
+commit 2732fb8888149cd98c0d57ab983d6bb4538506d0
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Tue Nov 28 16:44:18 2023 -0700
+
+    break up convolve.cpp into several modules and headers
+
+commit 6b66b087b9c68637960f57f801cd16d277e88e49
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Tue Nov 28 11:47:40 2023 -0700
+
+    fix that stupid seg fault on big inputs
+
+commit 922250075c19c7514777db7a274c6f7442a7e108
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Tue Nov 28 10:48:38 2023 -0700
+
+    finish storing sample arrays on the heap
+
+commit 5b2dc9ca6af5ae6f79f0f7884ee364ccf388b3b1
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Mon Nov 27 14:06:55 2023 -0700
+
+    implement convolution
+
+commit 97767f3a1fe2a27e054edddba130d1f1159c8f6e
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Wed Nov 22 12:22:13 2023 -0700
+
+    better error handling, read IR files
+
+commit d84621b3f0ac3b0a28971ef3f308097948439a32
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Wed Nov 22 11:08:44 2023 -0700
+
+    write data to an output wav file
+
+commit 1857b9047ec738bee1b50dd7e8152a7f907346e9
+Author: alexs2112 <alexste2112@gmail.com>
+Date:   Mon Nov 20 13:36:14 2023 -0700
+
+    get data subchunk
+
+commit 5ff9fa6fcd2540c9be2800357ac50dab3ae3781e
+Author: alexander.stevenson <alexander.stevenson@csx2.uc.ucalgary.ca>
+Date:   Mon Nov 20 10:56:20 2023 -0700
+
+    initial commit
