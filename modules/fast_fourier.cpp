@@ -79,10 +79,10 @@ unsigned int next_power(unsigned int v) {
 
 // Output size should be 2x the padded size to account for complex numbers
 void zero_padding(float *signal, int input_size, float *output, int output_size) {
-    int i;
-    for (i = 0; i < input_size; i++) {
-        output[i*2] = signal[i];
-        output[i*2 + 1] = 0.0;
+    int i, j;
+    for (i = 0, j = 0; i < input_size; i++, j += 2) {
+        output[j] = signal[i];
+        output[j + 1] = 0.0;
     }
     for (i = input_size * 2; i < output_size; i++) {
         output[i] = 0.0;

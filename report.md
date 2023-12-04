@@ -263,6 +263,56 @@ sys     0m0.110s
  - There was mild concern that changing from doubles to floats would cause incorrect outputs as there is a loss of 4 bytes of precision.
  - This is not the case, all of the unit tests pass and manually running the convolution code using the new `four1` function produces the same result.
 
+### Manual Code Tuning #4:
+ - The `zero_padding` function performs repeated multiplications by 2 to get indices of the output array.
+ - Strength Reduction can be applied to instead add by a fixed value every iteration instead of multiplying.
+
+**Commit**: []()
+
+**Code Changes**:
+```c
+void zero_padding(float *signal, int input_size, float *output, int output_size) {
+    int i, j;
+    for (i = 0, j = 0; i < input_size; i++, j += 2) {
+        output[j] = signal[i];
+        output[j + 1] = 0.0;
+    }
+    ...
+}
+```
+ - Previously, the index applied to output was `2 * i`
+ - Strength Reduction is applied to instead increment a second value of `j` by 2 every loop iteration. This can be directly applied as the index of output instead of needing to perform a multiplication.
+
+**Run Time Performance**:
+```
+>>> time ./convolve input/FluteDry.wav ir/taj_mahal.wav output/out.wav
+real    0m4.874s
+user    0m4.345s
+sys     0m0.121s
+>>> gprof convolve profiling/flute-manual-4.out
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 94.10      3.83     3.83        3     1.28     1.28  four1(float*, int, int)
+  2.70      3.94     0.11                             complex_multiply(void*)
+  1.47      4.00     0.06        2     0.03     0.03  zero_padding(float*, int, float*, int)
+```
+```
+>>> time ./convolve input/GuitarDry.wav ir/large_brite_hall.wav output/out.wav
+real    0m2.059s
+user    0m1.695s
+sys     0m0.094s
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 89.61      1.38     1.38        3     0.46     0.46  four1(float*, int, int)
+  5.19      1.46     0.08                             complex_multiply(void*)
+  1.30      1.48     0.02        2     0.01     0.01  zero_padding(float*, int, float*, int)
+```
+ - Note that the amount of time required by the `zero_padding` function is reduced in both cases.
+
+**Regression Testing**:
+ - Previous automated unit tests continue to pass.
+ - Manual running of the convolution executable works as expected.
+
 ### Compiler-Level Optimization:
  - Previously, the `convolve` executable was compiled with the `g` debug flag and the `p` profiling flag. Both of these flags slow down performance by including debug and profiling information when the executable runs.
  - Adding the `O3` flag to allow the gcc compiler to optimize the executable the maximum allowed amount will also speed up execution time.
