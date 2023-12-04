@@ -164,6 +164,8 @@ sys     0m0.134s
  - This can be optimized by only going over the array once by zeroing the imaginary part of the array at the same time as copying values from the input array.
     - *Note*: If the output array size is greater than twice the length of the input array then the remainder will still need to be zeroed. This is easy to accomplish by starting another `for` loop at the index of `2 * input_length + 1`.
 
+**Commit**: [95c75c13fa76d35a41940a4d9794334dfae4f208](https://github.com/alexs2112/CPSC501-Convolution/commit/95c75c13fa76d35a41940a4d9794334dfae4f208)
+
 **Code Changes**:
 ```c
 void zero_padding(float *signal, int input_size, double *output, int output_size) {
