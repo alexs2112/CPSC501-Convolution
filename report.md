@@ -346,7 +346,7 @@ sys     0m0.094s
  - The `complex_multiply` function continues to be the second slowest function during execution of the code.
  - The performance of this function can be improved by Partially Unrolling the code 3 times
 
-**Commit**: []()
+**Commit**: [05695544be809617d20fedbb02247b5f1d7caa86](https://github.com/alexs2112/CPSC501-Convolution/commit/05695544be809617d20fedbb02247b5f1d7caa86)
 
 **Code Changes**:
 ```c
@@ -425,10 +425,10 @@ sys     0m0.087s
 **Code Changes**:
 ```Makefile
 convolve: convolve.cpp
-	g++ -O3 -o convolve convolve.cpp modules/reader.cpp modules/writer.cpp modules/convolution.cpp modules/fast_fourier.cpp modules/misc.cpp
+	g++ -O3 -o convolve convolve.cpp ...
 
 test: test.cpp
-	g++ -g -O3 -o test test.cpp modules/convolution.cpp modules/fast_fourier.cpp modules/misc.cpp
+	g++ -g -O3 -o test test.cpp ...
 ```
 
 **Run Time Performance**:
